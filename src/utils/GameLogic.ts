@@ -54,76 +54,89 @@ const GameLogic = () => {
 
     const registeredNumbers = new Map<number, number>();
 
-    let x_checked = -1;
-    let y_checked = -1;
+    const checked: Position = {
+      x: -1,
+      y: -1,
+    };
 
-    for (let _ of range(15)) {
+    // for (let _ of range(15)) {
+    for (let _ = 0; _ <= 15; ++_) {
       registeredNumbers.clear();
       const rowProcess = _ % 2 === 0;
 
-      if (rowProcess) y_checked++;
-      else x_checked++;
+      if (rowProcess) checked.y++;
+      else checked.x++;
 
-      let x_checking = x_checked;
-      let y_checking = y_checked;
+      const checking = { ...checked };
 
       for (let i of range9) {
-        if (rowProcess) x_checking = i;
-        else y_checking = i;
+        if (rowProcess) checking.x = i;
+        else checking.y = i;
 
-        if (registeredNumbers.has(newGrid[y_checking][x_checking])) {
+        if (registeredNumbers.has(newGrid[checking.y][checking.x])) {
           const result = BAS(
             newGrid,
             registeredNumbers,
-            { x: x_checking, y: y_checking },
-            { x: x_checked, y: y_checked },
+            { x: checking.x, y: checking.y },
+            { x: checked.y, y: checked.y },
             rowProcess
           );
 
-          // if (!result) {
-          //   console.log('BAS 1 failed');
+          if (!result) {
+            const prevIdx = registeredNumbers.get(
+              newGrid[checking.y][checking.x]
+            );
 
-          //   const prevIdx = registeredNumbers.get(
-          //     newGrid[y_checking][x_checking]
-          //   );
+            const prev = { ...checking };
 
-          //   let x_prev = x_checking;
-          //   let y_prev = y_checking;
+            if (rowProcess) prev.x = prevIdx as number;
+            else prev.y = prevIdx as number;
 
-          //   if (rowProcess) x_prev = prevIdx as number;
-          //   else y_prev = prevIdx as number;
+            registeredNumbers.set(
+              newGrid[checking.y][checking.x],
+              rowProcess ? checking.x : checking.y
+            );
 
-          //   // let result = BAS(
-          //   //   newGrid,
-          //   //   registeredNumbers,
-          //   //   { x: x_prev, y: y_prev },
-          //   //   { x: x_checked, y: y_checked },
-          //   //   rowProcess
-          //   // );
-          //   // if (!result) {
-          //   //   console.log('BAS 2 failed');
-          //   //   console.log(
-          //   //     { x: x_checked, y: y_checked },
-          //   //     { x: x_prev, y: y_prev }
-          //   //   );
+            let result = BAS(
+              newGrid,
+              registeredNumbers,
+              { x: prev.x, y: prev.y },
+              { x: checked.x, y: checked.y },
+              rowProcess
+            );
 
-          //   //   // result = PAS(
-          //   //   //   newGrid,
-          //   //   //   registeredNumbers,
-          //   //   //   { x: x_prev, y: x_prev },
-          //   //   //   rowProcess
-          //   //   // );
-          //   //   // if (!result) {
-          //   //   //   console.log('PAS failed');
-          //   //   // }
-          //   // }
-          // }
+            if (!result) {
+              registeredNumbers.set(
+                newGrid[checking.y][checking.x],
+                rowProcess ? checking.x : checking.y
+              );
+            }
+          }
         } else {
           registeredNumbers.set(
-            newGrid[y_checking][x_checking],
-            rowProcess ? x_checking : y_checking
+            newGrid[checking.y][checking.x],
+            rowProcess ? checking.x : checking.y
           );
         }
+      }
+
+      if (registeredNumbers.size < 9) {
+        for (let i of range9) {
+          if (rowProcess) checking.x = i;
+          else checking.y = i;
+
+          const idx = registeredNumbers.get(newGrid[checking.y][checking.x]);
+          if (idx && idx !== i) {
+            PAS(newGrid, registeredNumbers, checking, rowProcess);
+            break;
+          }
+        }
+      }
+
+      if (_ === 15 && !isGridUnique(newGrid)) {
+        _ = -1;
+        checked.x = -1;
+        checked.y = -1;
       }
     }
 
@@ -131,6 +144,33 @@ const GameLogic = () => {
       type: Action.INIT_GAME,
       newGrid: newGrid,
     });
+
+    {
+      console.log('');
+      console.log('Checking rows:');
+      const invalidRows: number[] = [];
+      for (let i = 0; i < 9; ++i) {
+        if (!isRowUnique(newGrid, i)) invalidRows.push(i);
+      }
+      console.log(invalidRows);
+
+      console.log('Checking columns:');
+      const invalidColumns: number[] = [];
+      for (let i = 0; i < 9; ++i) {
+        if (!isColumnUnique(newGrid, i)) invalidColumns.push(i);
+      }
+      console.log(invalidColumns);
+
+      console.log('Checking boxes:');
+      const invalidBoxes: Position[] = [];
+      for (let y = 0; y < 3; ++y) {
+        for (let x = 0; x < 3; ++x) {
+          const pos: Position = { x: x, y: y };
+          if (!isBoxUnique(newGrid, pos)) invalidBoxes.push(pos);
+        }
+      }
+      console.log(invalidBoxes);
+    }
   };
 
   const BAS = (
@@ -153,7 +193,7 @@ const GameLogic = () => {
 
         if (boxEnd.x >= target.x && boxEnd.y >= target.y) {
           if (!registeredNumbers.has(grid[target.y][target.x])) {
-            // console.log('Swap 2');
+            // console.log(' --- Swap 2');
             swapNumbers(grid, current, target);
             registeredNumbers.set(
               grid[current.y][current.x],
@@ -172,7 +212,7 @@ const GameLogic = () => {
       for (let target of swappableCells) {
         const targetValue = grid[target.y][target.x];
         if (!registeredNumbers.has(targetValue)) {
-          // console.log('Swap 1');
+          // console.log(' --- Swap 1');
           swapNumbers(grid, current, target);
           registeredNumbers.set(
             grid[current.y][current.x],
@@ -183,6 +223,9 @@ const GameLogic = () => {
       }
     }
 
+    // console.log('%c BAS FAILED ', 'background: black; color: red');
+    // console.log(current, rowProcess, grid[current.y][current.x]);
+
     return false;
   };
 
@@ -192,14 +235,6 @@ const GameLogic = () => {
     startPos: Position,
     rowProcess: boolean
   ) => {
-    // if (
-    //   (rowProcess && (startPos.y === 2 || startPos.y === 5)) ||
-    //   (!rowProcess && (startPos.x === 2 || startPos.x === 5))
-    // ) {
-    //   console.log('Edge');
-    //   return false;
-    // } else {
-
     const current = { ...startPos };
 
     for (let _ = 0; _ < 18; ++_) {
@@ -207,31 +242,19 @@ const GameLogic = () => {
       if (rowProcess) target.y++;
       else target.x++;
 
-      console.log(logObj(grid));
-      console.log(
-        rowProcess,
-        current,
-        grid[current.y][current.x],
-        target,
-        grid[target.y][target.x]
-      );
-      logMap(registeredNumbers);
-
       const targetValue = grid[target.y][target.x];
       let idx = registeredNumbers.get(targetValue);
 
-      registeredNumbers.delete(grid[current.y][current.x]);
       registeredNumbers.set(targetValue, rowProcess ? target.x : target.y);
       swapNumbers(grid, current, target);
-
-      logMap(registeredNumbers);
 
       if (idx === undefined) return true;
 
       if (rowProcess) current.x = idx;
       else current.y = idx;
     }
-    // }
+
+    console.log('%c PAS FAILED ', 'background: black; color: yellow');
 
     return false;
   };
@@ -275,6 +298,47 @@ const GameLogic = () => {
       grid[current.y][current.x],
       grid[target.y][target.x],
     ];
+  };
+
+  const isRowUnique = (grid: number[][], rowIdx: number): boolean => {
+    let numbers: Set<number> = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    for (let number of grid[rowIdx]) numbers.delete(number);
+
+    return numbers.size === 0;
+  };
+
+  const isColumnUnique = (grid: number[][], colIdx: number): boolean => {
+    let numbers: Set<number> = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    for (let i = 0; i < 9; ++i) numbers.delete(grid[i][colIdx]);
+
+    return numbers.size === 0;
+  };
+
+  const isBoxUnique = (grid: number[][], boxIdx: Position): boolean => {
+    let numbers: Set<number> = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    for (let y = 0; y < 3; ++y) {
+      for (let x = 0; x < 3; ++x) {
+        numbers.delete(grid[y + boxIdx.y * 3][x + boxIdx.x * 3]);
+      }
+    }
+
+    return numbers.size === 0;
+  };
+
+  const isGridUnique = (grid: number[][]): boolean => {
+    for (let i of range(8)) {
+      if (
+        !isBoxUnique(grid, { x: i % 3, y: Math.floor(i / 3) }) ||
+        !isColumnUnique(grid, i) ||
+        !isRowUnique(grid, i)
+      ) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const selectCell = (position: Position) => {
