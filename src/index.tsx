@@ -6,9 +6,11 @@ import './styles';
 
 ReactDOM.render(
   <React.StrictMode>
+    {/* <HashRouter basename="/"> */}
     <BrowserRouter>
       <App />
     </BrowserRouter>
+    {/* </HashRouter> */}
   </React.StrictMode>,
   document.getElementById('root')
 );

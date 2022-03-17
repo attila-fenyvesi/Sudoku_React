@@ -43,10 +43,16 @@ const GameReducer = (state: GameState, action: ReducerAction) => {
   switch (action.type) {
     case Action.INIT_GAME:
       state.sudoku.generate(action.difficulty);
-      state.timer.time = 0;
-      state.timer.isRunning = true;
 
-      return { ...state };
+      return {
+        ...state,
+        timer: {
+          time: 0,
+          isRunning: true,
+        },
+        showHints: false,
+        selectedCell: null,
+      };
 
     case Action.FINISH_GAME:
       state.timer.isRunning = false;

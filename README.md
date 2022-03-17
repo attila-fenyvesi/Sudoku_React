@@ -2,7 +2,7 @@
 
 The grid generator algorithm is based on the algorithm created by [Mark Fredrick Graves, Jr](https://github.com/mfgravesjr).
 
-Playable demo.
+Playable [demo](https://attila-fenyvesi.github.io/Sudoku_React/).
 
 ## How to play
 
