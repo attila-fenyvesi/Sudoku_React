@@ -1,0 +1,50 @@
+.button
+    position: relative
+    display: inline-block
+    flex-grow: 1
+    margin: 0 10px
+    color: #DDD
+    cursor: pointer
+    text-align: center
+    height: 36px
+    line-height: 36px
+    user-select: none
+    transition: 200ms
+    border: solid 2px #CCC9A1
+    border-radius: 50px
+
+    .label
+        position: relative
+        padding: 0 20px
+        transition: 200ms
+        z-index: 1
+
+    &:hover .label
+        color: #333
+        font-weight: bold
+
+    .background
+        position: absolute
+        top: 2px
+        left: 2px
+        bottom: 2px
+        right: 2px
+        background-color: #CCC9A1
+        border-radius: 50px
+        opacity: 0
+        transform: scale(0)
+        transition: 200ms
+        z-index: -1
+
+    &:hover .background
+        transform: scale(1)
+        opacity: 1
+
+    .submenu
+        position: absolute
+        display: flex
+        width: calc(300% + 72px)
+        left: calc(-100% - 36px)
+        top: calc(100% + 20px)
+
+        .button

@@ -1,9 +1,9 @@
-import React from 'react';
 import GridCell from '../GridCell';
 import { Position } from '../GridCell/GridCell';
 
 const GridBlock = (gridPosition: Position) => {
   const gridCells: any[] = [];
+
   for (let y = 0; y < 3; ++y) {
     for (let x = 0; x < 3; ++x) {
       const position: Position = {

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import GridBlock from '../GridBlock';
 import { Position } from '../GridCell/GridCell';
 import KeyboardEventHandler from 'react-keyboard-event-handler';

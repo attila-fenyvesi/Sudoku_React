@@ -1,21 +1,15 @@
 import React, { createContext, useReducer } from 'react';
+import { Sudoku } from '../classes';
 import GameReducer, { GameState } from './GameReducer';
 
 const initialState: GameState = {
-  grid: [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ],
-  fixedCells: [],
+  sudoku: new Sudoku(),
   showHints: false,
   selectedCell: null,
+  timer: {
+    isRunning: false,
+    time: 0,
+  },
 };
 
 interface GameContextInterface {

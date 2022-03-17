@@ -1,16 +1,11 @@
 #footer
-    margin-top: 20px
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin: 20px -10px 0
 
-.button
-    display: inline-block
-    padding: 10px 20px
-    border: solid 2px #CCC9A1
-    border-radius: 20px
-    margin-right: 20px
-    color: #DDD
-    cursor: pointer
+    a
+        flex-grow: 1
 
-    &.btn-on
-        background-color: #CCC9A1
-        color: #333
-        font-weight: bold
+        .button
+            width: calc(100% - 20px)

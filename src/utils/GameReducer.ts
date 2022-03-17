@@ -1,32 +1,19 @@
+import { Sudoku, Difficulty } from '../classes';
 import { Position } from '../components/GridCell/GridCell';
-import { checkPosInArray } from './Helpers';
 
 export type GameState = {
-  grid: number[][];
-  fixedCells: Position[];
+  sudoku: Sudoku;
   showHints: boolean;
   selectedCell: Position | null;
-};
-
-const initialState: GameState = {
-  grid: [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ],
-  fixedCells: [],
-  showHints: false,
-  selectedCell: null,
+  timer: {
+    isRunning: boolean;
+    time: number;
+  };
 };
 
 export enum Action {
   INIT_GAME,
+  FINISH_GAME,
   TOGGLE_HINTS,
   SELECT_CELL,
   DESELECT_CELLS,
@@ -34,17 +21,20 @@ export enum Action {
   ERASE_NUMBER,
   CLEAR_CELLS,
   CLEAR_GRID,
+  TIMER_TICK,
 }
 
 type ReducerAction =
-  | { type: Action.INIT_GAME; newGrid: number[][] }
+  | { type: Action.INIT_GAME; difficulty: Difficulty }
+  | { type: Action.FINISH_GAME }
   | { type: Action.TOGGLE_HINTS }
   | { type: Action.SELECT_CELL; selectedCell: Position }
   | { type: Action.DESELECT_CELLS }
   | { type: Action.SET_NUMBER; number: number }
   | { type: Action.ERASE_NUMBER; selectedCell: Position }
   | { type: Action.CLEAR_CELLS }
-  | { type: Action.CLEAR_GRID };
+  | { type: Action.CLEAR_GRID }
+  | { type: Action.TIMER_TICK };
 
 const GameReducer = (state: GameState, action: ReducerAction) => {
   const range = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -52,15 +42,14 @@ const GameReducer = (state: GameState, action: ReducerAction) => {
 
   switch (action.type) {
     case Action.INIT_GAME:
-      state.grid = action.newGrid;
+      state.sudoku.generate(action.difficulty);
+      state.timer.time = 0;
+      state.timer.isRunning = true;
 
-      // for (let y = 0; y < 9; ++y) {
-      //   for (let x = 0; x < 9; ++x) {
-      //     if (state.grid[y][x] > 0) {
-      //       state.fixedCells.push({ x: x, y: y });
-      //     }
-      //   }
-      // }
+      return { ...state };
+
+    case Action.FINISH_GAME:
+      state.timer.isRunning = false;
 
       return { ...state };
 
@@ -85,7 +74,7 @@ const GameReducer = (state: GameState, action: ReducerAction) => {
     case Action.SET_NUMBER:
       const cell: Position = state.selectedCell as Position;
 
-      state.grid[cell.y][cell.x] = action.number;
+      state.sudoku.grid[cell.y][cell.x] = action.number;
 
       return {
         ...state,
@@ -95,7 +84,7 @@ const GameReducer = (state: GameState, action: ReducerAction) => {
     case Action.ERASE_NUMBER:
       const pos: Position = action.selectedCell;
 
-      state.grid[pos.y][pos.x] = 0;
+      state.sudoku.grid[pos.y][pos.x] = 0;
 
       return {
         ...state,
@@ -103,31 +92,28 @@ const GameReducer = (state: GameState, action: ReducerAction) => {
       };
 
     case Action.CLEAR_CELLS:
-      for (let y of range) {
-        for (let x of range) {
-          if (checkPosInArray({ x: x, y: y }, state.fixedCells)) continue;
-          state.grid[y][x] = 0;
-        }
-      }
-
+      state.sudoku.clearGrid();
       return { ...state, selectedCell: null };
 
     case Action.CLEAR_GRID:
       return {
-        grid: [
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
+        ...state,
         fixedCells: [],
         showHints: false,
         selectedCell: null,
+        timer: {
+          isRunning: false,
+          time: 0,
+        },
+      };
+
+    case Action.TIMER_TICK:
+      return {
+        ...state,
+        timer: {
+          ...state.timer,
+          time: state.timer.time + 1,
+        },
       };
 
     default:

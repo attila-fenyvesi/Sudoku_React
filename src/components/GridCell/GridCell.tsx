@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../../utils/GameContext';
 import GameLogic from '../../utils/GameLogic';
-import { checkPosInArray } from '../../utils/Helpers';
 
 export type Position = {
   x: number;
@@ -12,11 +11,11 @@ const GridCell = (position: Position) => {
   const { state } = useContext(GameContext);
   const { selectCell, eraseNumber, availableNumbers } = GameLogic();
 
-  const value: number = state.grid[position.y][position.x];
+  const value: number = state.sudoku.grid[position.y][position.x];
 
   let hints: number[] = [];
   if (state.showHints && value === 0) {
-    hints = availableNumbers(state.grid, position);
+    hints = availableNumbers(position);
   }
 
   const hintElements: any[] = [];
@@ -32,7 +31,7 @@ const GridCell = (position: Position) => {
   }
 
   const valueClasses: string[] = ['value cell-content'];
-  if (checkPosInArray(position, state.fixedCells)) {
+  if (state.sudoku.mask[position.y][position.x] === 1) {
     valueClasses.push('fixed');
   }
   if (

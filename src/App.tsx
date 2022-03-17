@@ -1,19 +1,21 @@
-import Footer from './components/Footer';
-import Grid from './components/Grid';
+import { Route, Routes } from 'react-router-dom';
+import { Game, MainMenu } from './routes';
 import { GameContextProvider } from './utils/GameContext';
 
 function App() {
   return (
-    <GameContextProvider>
-      <div id="ruler">
-        <div id="app-wrapper">
-          <div id="app">
-            <Grid />
-            <Footer />
-          </div>
+    <div id="ruler">
+      <div id="app-wrapper">
+        <div id="app">
+          <GameContextProvider>
+            <Routes>
+              <Route path="/" element={<MainMenu />} />
+              <Route path="/game" element={<Game />} />
+            </Routes>
+          </GameContextProvider>
         </div>
       </div>
-    </GameContextProvider>
+    </div>
   );
 }
 

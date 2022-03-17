@@ -1,27 +1,26 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import GameLogic from '../../utils/GameLogic';
 import { GameContext } from '../../utils/GameContext';
+import Button from '../Button';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const { state } = useContext(GameContext);
-  const { startNewGame, toggleHints, clear } = GameLogic();
+  const { toggleHints, clear } = GameLogic();
 
   return (
     <div id="footer">
-      <div
-        className={state.showHints ? 'button btn-on' : 'button'}
+      <Button
+        label={state.showHints ? 'HIDE HINTS' : 'SHOW HINTS'}
+        classes={state.showHints ? 'button btn-on' : 'button'}
         onClick={toggleHints}
-      >
-        {state.showHints ? 'HIDE HINTS' : 'SHOW HINTS'}
-      </div>
+      />
 
-      <div className="button" onClick={startNewGame}>
-        NEW GAME
-      </div>
+      <Link to="/">
+        <Button label="MAIN MENU" />
+      </Link>
 
-      <div className="button" onClick={clear}>
-        CLEAR CELLS
-      </div>
+      <Button label="CLEAR CELLS" onClick={clear} />
     </div>
   );
 };

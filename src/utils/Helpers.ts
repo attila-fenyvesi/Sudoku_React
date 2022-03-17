@@ -12,11 +12,12 @@ const compPositions = (
   );
 };
 
-const checkPosInArray = (position: Position, array: Position[]) => {
-  return array.some((value: Position) => {
-    return compPositions(value, position);
-  });
-};
+// const checkPosInArray = (position: Position, array: number[][]) => {
+//   return array[position.y][position.x] === 1;
+//   // return array.some((value: Position) => {
+//   //   return compPositions(value, position);
+//   // });
+// };
 
 const range = (
   param_1: number,
@@ -48,7 +49,7 @@ const range = (
   });
 };
 
-const shuffle = (array: any[]) => {
+const shuffle = (array: any[]): any[] => {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -69,12 +70,17 @@ const logObj = (obj: any) => {
   console.log(JSON.parse(JSON.stringify(obj)));
 };
 
+const randomIntInterval = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
 export {
-  checkPosInArray,
+  // checkPosInArray,
   compPositions,
   range,
   shuffle,
   logMap,
   logMapAsObj,
   logObj,
+  randomIntInterval,
 };
