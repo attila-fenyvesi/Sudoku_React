@@ -7,5 +7,5 @@ Playable [demo](https://attila-fenyvesi.github.io/Sudoku_React/).
 ## How to play
 
 - You can select a cell by clicking on it.
-- To enter a number into a selected cell, just a press number key (1-9) on the keyboard.
+- To enter a number into a selected cell, just press a number key (1-9) on the keyboard.
 - To delete a cell, just right click on it.
